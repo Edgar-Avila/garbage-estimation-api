@@ -7,7 +7,9 @@ from fastapi.middleware.cors import CORSMiddleware
 model = load('model.joblib')
 scaler = load('scaler.joblib')
 population_models = load('population.joblib')
-population_scaler = population_models['scaler']
+paises_rurales_models = load('paises_rurales.joblib')
+paises_urbana_models = load('paises_urbanas.joblib')
+score_residuos = 0.9661523416966664
 
 app = FastAPI()
 
@@ -36,16 +38,49 @@ def calc_population(departamento: str, anio: int):
         }
     population_model_urbana = population_models[departamento]['POB_URBANA']['model']
     population_model_rural = population_models[departamento]['POB_RURAL']['model']
-    scaled = population_scaler.transform([[anio]])
-    prediction_urbana = population_model_urbana.predict(scaled)
-    prediction_rural = population_model_rural.predict(scaled)
+    score_urbana = population_models[departamento]['POB_URBANA']['score']
+    score_rural = population_models[departamento]['POB_RURAL']['score']
+    prediction_urbana = population_model_urbana.predict([[anio]])
+    prediction_rural = population_model_rural.predict([[anio]])
     rural = int(prediction_rural[0])
     urbana = int(prediction_urbana[0])
-    scaled_residuos = scaler.transform([[rural, urbana]])
-    prediction_residuos = model.predict(scaled_residuos)
+    prediction_residuos = model.predict([[rural, urbana]])
     residuos = prediction_residuos[0][0]
+    score_total = score_urbana * score_rural * score_residuos
     return {
         'urbana': urbana,
         'rural': rural,
-        'residuos': residuos
+        'residuos': residuos,
+        'score_urbana': score_urbana,
+        'score_rural': score_rural,
+        'score_residuos': score_residuos,
+        'score_total': score_total
+    }
+
+@app.get('/calc-poblacion/paises')
+def calc_population(pais: str, anio: int):
+    print(paises_rurales_models)
+    if (pais not in paises_rurales_models) or (pais not in paises_urbana_models):
+        return {
+            'error': 'Pais no encontrado'
+        }
+    population_model_urbana = paises_urbana_models[pais]['model']
+    population_model_rural = paises_rurales_models[pais]['model']
+    score_urbana = paises_urbana_models[pais]['score']
+    score_rural = paises_rurales_models[pais]['score']
+    prediction_urbana = population_model_urbana.predict([[anio]])
+    prediction_rural = population_model_rural.predict([[anio]])
+    rural = int(prediction_rural[0])
+    urbana = int(prediction_urbana[0])
+    prediction_residuos = model.predict([[rural, urbana]])
+    residuos = prediction_residuos[0][0]
+    score_total = score_urbana * score_residuos
+    return {
+        'urbana': urbana,
+        'rural': rural,
+        'residuos': residuos,
+        'score_urbana': score_urbana,
+        'score_rural': score_rural,
+        'score_residuos': score_residuos,
+        'score_total': score_total
     }
