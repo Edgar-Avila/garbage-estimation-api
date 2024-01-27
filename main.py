@@ -59,7 +59,6 @@ def calc_population(departamento: str, anio: int):
 
 @app.get('/calc-poblacion/paises')
 def calc_population(pais: str, anio: int):
-    print(paises_rurales_models)
     if (pais not in paises_rurales_models) or (pais not in paises_urbana_models):
         return {
             'error': 'Pais no encontrado'
