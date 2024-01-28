@@ -44,7 +44,8 @@ def calc_population(departamento: str, anio: int):
     prediction_rural = population_model_rural.predict([[anio]])
     rural = int(prediction_rural[0])
     urbana = int(prediction_urbana[0])
-    prediction_residuos = model.predict([[rural, urbana]])
+    scaled = scaler.transform([[rural, urbana]])
+    prediction_residuos = model.predict(scaled)
     residuos = prediction_residuos[0][0]
     score_total = score_urbana * score_rural * score_residuos
     return {
@@ -71,7 +72,8 @@ def calc_population(pais: str, anio: int):
     prediction_rural = population_model_rural.predict([[anio]])
     rural = int(prediction_rural[0])
     urbana = int(prediction_urbana[0])
-    prediction_residuos = model.predict([[rural, urbana]])
+    scaled = scaler.transform([[rural, urbana]])
+    prediction_residuos = model.predict(scaled)
     residuos = prediction_residuos[0][0]
     score_total = score_urbana * score_residuos
     return {
