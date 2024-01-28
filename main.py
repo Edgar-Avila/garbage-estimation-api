@@ -24,7 +24,7 @@ app.add_middleware(
 
 @app.get('/calc-residuos')
 def calc_garbage(rural: int, urbana: int):
-    scaled = scaler.transform([[rural, urbana]])
+    scaled = scaler.transform([[urbana, rural]])
     prediction = model.predict(scaled)
     return {
         'prediccion': prediction[0][0]
@@ -44,7 +44,7 @@ def calc_population(departamento: str, anio: int):
     prediction_rural = population_model_rural.predict([[anio]])
     rural = int(prediction_rural[0])
     urbana = int(prediction_urbana[0])
-    scaled = scaler.transform([[rural, urbana]])
+    scaled = scaler.transform([[urbana, rural]])
     prediction_residuos = model.predict(scaled)
     residuos = prediction_residuos[0][0]
     score_total = score_urbana * score_rural * score_residuos
@@ -72,7 +72,7 @@ def calc_population(pais: str, anio: int):
     prediction_rural = population_model_rural.predict([[anio]])
     rural = int(prediction_rural[0])
     urbana = int(prediction_urbana[0])
-    scaled = scaler.transform([[rural, urbana]])
+    scaled = scaler.transform([[urbana, rural]])
     prediction_residuos = model.predict(scaled)
     residuos = prediction_residuos[0][0]
     score_total = score_urbana * score_residuos
